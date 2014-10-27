@@ -1,0 +1,48 @@
+% ruina.sty
+%
+%Format for Ruina's homework specifications
+
+\ProvidesPackage{ruina}
+
+%%%%%%%%%%%%%%%%%%%%%%% IMPORTS  %%%%%%%%%%%%%%
+
+\RequirePackage{MAE}
+
+%%%%%%%%%%%%%%%%%%% Define Header/Title  %%%%%%%%%%%%%%%
+
+\setlength\boxlength\textwidth
+\addtolength\boxlength{-4mm}
+
+\newcommand\@name{Brady Jacobs}  %default value
+\newcommand\name[1]{\renewcommand{\@name}{#1}}
+\newcommand\@hwnum{}
+\newcommand\hwnum[1]{\renewcommand{\@hwnum}{#1}}
+\newcommand\@due{}
+\newcommand\due[1]{\renewcommand{\@due}{#1}}
+\newcommand\@course{MAE 5730}
+\newcommand\course[1]{\renewcommand{\@course}{#1}}
+
+\renewcommand{\maketitle}{\vspace*{-5em}
+    \begin{center}\parbox{\boxlength}{\bf\raggedleft \@name \\
+    \@course \\
+    HW \@hwnum , Due: \@due}
+    \end{center}
+    \vspace{1em}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Set a few macros  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzset{forces/.style={-latex,very thick}}
+\lstset{style=MATLAB,frame=single,numbers=left}
+
+%TODO make these mathmode only safe?????
+\newcommand\hatr{\hat{e}_r}
+\newcommand\hatt{\hat{e}_\theta}
+\newcommand\hati{\hat\imath}
+\newcommand\hatj{\hat\jmath}
+
+%write the time derivative of no function
+\newcommand{\ddt}{\frac{\mathrm{d}}{\mathrm{d}t}}
+%the lagrangian (in case I decide to use a different character in future
+\newcommand{\lagrange}{\mathcal{L}}
+%the derivative of the lagrangian with respect to a given variable
+\newcommand{\dLag}[1]{\frac{\partial \lagrange}{\partial #1}}

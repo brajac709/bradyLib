@@ -1,0 +1,190 @@
+%% MAE.sty  (A style for many things mechanial engineering)
+%%
+%% Version 1
+%% 6/19/14
+
+\ProvidesPackage{MAE}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Package Imports %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RequirePackage{tikz,calc}
+%\RequirePackage{enumerate,soul,relsize,scrextend,mdframed}
+\RequirePackage{listings}
+\RequirePackage{relsize,textcomp,ifthen}
+\RequirePackage{lmodern} %for bold teletype
+\RequirePackage{amsmath}
+\RequirePackage{accents}
+
+%TODO Make this an option that we can set
+\RequirePackage[margin=1in]{geometry}
+
+\usetikzlibrary{calc,decorations,arrows}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% General Typsetting Settings %%%%%%%%%%%%%%%%%%%%
+
+%no automatic paragraph indents
+\setlength{\parindent}{0pt}  %default 15pt
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Custom Header  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newlength\boxlength\setlength\boxlength\textwidth
+%\addtolength{\boxlength}{-2in}
+
+
+%this is one of the title options.  Or just make this a custom header (like for official reports, not problem sets
+%\newcommand\@my1title{
+%\begin{center}\framebox{\includegraphics[keepaspectratio=true,height=1in]{Images/mae.png}
+%\parbox{\boxlength}{ Brady Jacobs \hfill
+%\today \\
+%MAE Some Class \hfill Problem Set Number
+%\hfill
+%}\includegraphics[keepaspectratio=true,height=1in]{Images/cornell.jpg}
+%}
+%\end{center}}
+
+%TODO make this more useable...
+%\renewcommand\maketitle{\vspace*{-8em}
+%\begin{center}\framebox{\parbox{\boxlength}{\bf Brady Jacobs \hfill Course Name\\Problem Set Number \hfill \today}}\end{center}}
+
+%not sure if this works or if I need to do something to make it expand here
+%\newcommand\@oldtitle\maketitle
+%\renewcommand{}
+%TODO this section is not done!!!!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% For Typesetting various languages %%%%%%%%%%%%%%%%%%%%%%%
+
+%TODO  add things for this listings package - also add the \MATLAB environment and the \MATLABimport command
+%% may need to add dialects...
+%Define a sytel for MATLAB
+\lstdefinestyle{MATLAB}{
+language=Matlab,
+alsoletter={.},
+morekeywords={switch,case,otherwise, ...}, %Others???
+deletekeywords={pi,size,length,zeros,ones,eye,linspace,ode45,figure,xlabel,
+    ylabel,title,sprintf,fprintf,legend,plot,cos,sin,strrep,norm,set,exp,
+    beta,round,rand,min,max,sum,log,abs,load,open,mean,std,logspace,loglog,
+    sqrt,pause,sort,num2str,reshape,error,cd,any,xor,prod,fmin,floor,save,
+    text,tic,toc,interp1,dir,dlmread,fopen,fclose,fwrite},
+keywords=[2]{pi,size,length,zeros,ones,eye,linspace,ode45,figure,xlabel,
+    ylabel,title,sprintf,fprintf,legend,plot,cos,sin,strrep,norm,set,exp,
+    round,rand,min,max,sum,log,abs,load,open,mean,std,logspace,loglog,
+    sqrt,pause,num2str,sort,reshape,any,xor,prod,fmin,floor,save,
+    text,tic,toc,interp1,dir,dlmread,fopen,fclose,fwrite},
+showstringspaces=false,
+basicstyle=\smaller\tt,
+tabsize=4,
+keywordstyle=\color{blue}\textbf,
+keywordstyle=[2]\color{gray!50!black}\textbf,  %subject to change. this is for pi, size, length, etc. other defined things not keywords
+commentstyle=\color{green!50!black}\textbf,
+stringstyle=\color{magenta},
+upquote=true,
+columns=flexible
+}
+
+\renewcommand\thelstnumber{\the\value{lstnumber}:}
+%\renewcommand\thelstnumber{\the\value{lstnumber}}
+\lstset{numberstyle=\tiny, stepnumber=1, numbersep=10pt}
+
+%TODO may want to alias with other ways of writing, such as Matlab, or matlab
+\lstnewenvironment{MATLAB}[1][none]{\lstset{style=MATLAB,numbers=#1}}{}
+
+%define style for python
+\lstdefinestyle{python}{
+language=Python,
+alsoletter={.},
+%CHECK IF NEED MORE KEYWORDS
+showstringspaces=false,
+basicstyle=\smaller\tt,
+tabsize=4,
+keywordstyle=\color{blue}\textbf,
+commentstyle=\color{green!50!black}\textbf,
+stringstyle=\color{magenta},
+upquote=true,
+columns=flexible
+}
+
+\lstnewenvironment{Python}[1][none]{\lstset{style=python,numbers=#1}}{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TIKZ Macros  %%%%%%%%%%%%%%%%%%%%%%%
+
+%% Set the inner sep for all nodes to be 0
+\pgfkeys{/tikz/inner xsep/.get=\xsep,
+    /tikz/inner ysep/.get=\ysep}
+\tikzset{every node/.style={inner sep=0pt}}
+
+%\tikzset{every node/.style={inner sep=0pt}}
+%every label/.style={inner sep=\innersep}}
+
+%% Center of Gravity symbol
+%this is temporary until I can find a way to make it a shape
+%\CoG{x}{y}{r}
+\newcommand{\CoG}[3]{\draw (#1,#2) circle (#3);\draw [fill=black] (#1,#2) -- ++(#3,0) arc (0:90:#3) -- cycle;\draw [fill=black] (#1,#2) -- ++(-#3,0) arc (180:270:#3) -- cycle;} %I think this will work
+
+\pgfdeclareshape{CofG}{
+	\inheritsavedanchors[from=circle]
+	\inheritanchorborder[from=circle]
+	\inheritanchor[from=circle]{center}
+	\inheritanchor[from=circle]{north}
+	\inheritanchor[from=circle]{south}
+	\inheritanchor[from=circle]{east}
+	\inheritanchor[from=circle]{west}
+	\inheritanchor[from=circle]{north east}
+	\inheritanchor[from=circle]{north west}
+	\inheritanchor[from=cricle]{south east}
+	\inheritanchor[from=circle]{south west}
+	
+	\inheritbackgroundpath[from=circle]
+	
+	\beforebackgroundpath{
+		%get radius and center point coordinates  (FIGURE OUT HOW THIS WORKS!!!????)
+		\radius \pgf@xa=\pgf@x
+		\centerpoint \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		
+		\advance\pgf@yb by \pgf@xa 
+		\pgfpathmoveto{\centerpoint} %check if this is correct??
+		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+		\pgfarc{90}{0}{\pgf@xa}
+		\pgfpathclose
+		\pgfusepath{fill}  %TODO figure out how to force black (if that's what I want)
+		
+		\advance\pgf@yb by -2\pgf@xa
+		\pgfpathmoveto{\centerpoint}
+		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+		\pgfarc{270}{180}{\pgf@xa}
+		\pgfpathclose
+		\pgfusepath{fill}
+	}
+}
+
+%TODO create something for "fixed ground" hash marks
+
+%can use [postaction={decorate,decoration=fixedhash}] to keep the original path as well
+\pgfdeclaredecoration{fixedhash}{initial}{
+
+%\pgfmathparse{max(\pgfdecoratedpathlength/10,10pt)}  %hope I can do this
+%TODO need to test if variable length makes more sense
+%TODO define options for the direction of the hash
+\state{initial}[width={3pt},auto corner on length={3pt}]{
+\pgfpathlineto{\pgfpoint{3pt}{5pt}}
+\pgfpathmoveto{\pgfpoint{3pt}{0}}
+}
+
+\state{final}{\pgfpathlineto{\pgfpoint{3pt}{5pt}}} 
+
+}
+%Define a style for this decoration
+\tikzset{myhash/.style={thick,/pgf/decoration/path has corners=true,postaction={draw,thin,decorate,decoration=fixedhash}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Math Definitions %%%%%%%%%%%%%%%%%%%%%%
+
+%use harpoon as the default vector 
+%\edef\oldvec{\vec}  %keep the old version
+%\DeclareMathAccent{\vec}{\mathord}{letters}{"7E}
+\renewcommand{\vec}[1]{\accentset{\rightharpoonup}{#1}}  
+
+%do a vector dot product with itself
+\newcommand{\vsqr}[1]{#1\cdot #1}
+
+
+
+\endinput
