@@ -1,0 +1,12 @@
+This project is mostly to version control my local LaTeX libraries.
+
+MAE.sty: contains many definitions that I tend to use at 
+Cornell Mechanical Engineering.  Main features include:
+   Center Of Mass shape in Tikz.
+   MATLAB and Python listing definitions
+   General Formatting consistency
+
+ruina.sty: Contains a few extra definitions for MAE 5730 homeworks that 
+Ruina wants.  Namely his specific header
+
+Other files are works in progress
