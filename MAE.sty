@@ -157,23 +157,38 @@ columns=flexible
 }
 
 %TODO create something for "fixed ground" hash marks
-
+\newcommand{\@hashxpt}{3pt}
+\newcommand{\@hashypt}{5pt}
+\let\@hash@absxpt=\@hashxpt
+\let\@hash@absypt=\@hashypt
+\pgfkeys{/MAE/hash/left/.code=\renewcommand{\@hashypt}{5pt},
+         /MAE/hash/right/.code=\renewcommand{\@hashypt}{-5pt},
+         /MAE/hash/fwd/.code=\renewcommand{\@hashxpt}{3pt},
+         /MAE/hash/bwd/.code=\renewcommand{\@hashxpt}{-3pt}}
 %can use [postaction={decorate,decoration=fixedhash}] to keep the original path as well
 \pgfdeclaredecoration{fixedhash}{initial}{
 
-%\pgfmathparse{max(\pgfdecoratedpathlength/10,10pt)}  %hope I can do this
-%TODO need to test if variable length makes more sense
-%TODO define options for the direction of the hash
-\state{initial}[width={3pt},auto corner on length={3pt}]{
-\pgfpathlineto{\pgfpoint{3pt}{5pt}}
-\pgfpathmoveto{\pgfpoint{3pt}{0}}
-}
+  %\pgfmathparse{max(\pgfdecoratedpathlength/10,10pt)}  %hope I can do this
+  %TODO need to test if variable length makes more sense
+  %TODO define options for the direction of the hash
+  
+  \state{initial}[width={\@hash@absxpt},auto corner on length={\@hash@absxpt}]{
+    \pgfpathlineto{\pgfpoint{\@hashxpt}{\@hashypt}}
+    \pgfpathmoveto{\pgfpoint{\@hash@absxpt}{0}}
+  }
 
-\state{final}{\pgfpathlineto{\pgfpoint{3pt}{5pt}}} 
+  \state{final}{
+    \pgfpathlineto{\pgfpoint{\@hashxpt}{\@hashypt}} 
+    \pgfpathmoveto{\pgfpointdecoratedpathlast}
+  }
+     
 
 }
 %Define a style for this decoration
 \tikzset{myhash/.style={thick,/pgf/decoration/path has corners=true,postaction={draw,thin,decorate,decoration=fixedhash}}}
+\tikzset{localhash/.style={decoration=fixedhash,/pgf/decoration/path has corners=true,
+                           thin,/MAE/hash/#1},
+         localhash/.default={fwd}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Math Definitions %%%%%%%%%%%%%%%%%%%%%%
 
