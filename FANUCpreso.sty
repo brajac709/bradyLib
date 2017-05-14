@@ -1,0 +1,29 @@
+
+% TODO may do use this as a beamer theme instead (not sure if it needs to be in a certain directory for beamer to read it)OB
+\ProvidesPackage{FANUCpreso}
+
+\RequirePackage{MAE}
+
+\definecolor{fanucyellow}{RGB}{255,223,26}
+\definecolor{fanucred}{RGB}{212,0,38}
+
+\useoutertheme{infolines}
+\useinnertheme[shadow=true]{rounded}
+\setbeamercolor*{normal text}{fg=black,bg=white}
+
+\setbeamercolor*{palette primary}{fg=fanucred,bg=fanucyellow!95!fanucred}
+\setbeamercolor*{palette secondary}{fg=black,bg=fanucyellow!75!fanucred}
+\setbeamercolor*{palette tertiary}{fg=white,bg=fanucred}
+\setbeamercolor*{palette quaternary}{fg=white, bg=red!75!white}
+\setbeamercolor*{titlelike}{parent=palette primary,bg=fanucyellow}
+
+\setbeamercolor*{example text}{fg=green!30!black,bg=green!90!black}
+\setbeamercolor*{block title}{fg=fanucred,bg=fanucyellow!75!white} 
+\setbeamercolor*{block body}{fg=black,bg=fanucyellow!40!white}
+% TODO not the biggest fan of this one....
+\setbeamercolor*{block title alerted}{use=block title, fg=block title.fg!75!black, bg=block title.bg!90!fanucred}
+\setbeamercolor*{block body alerted}{parent=block body}
+%\setbeamercolor*{frametitle}{
+
+
+
