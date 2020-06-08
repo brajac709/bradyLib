@@ -14,6 +14,11 @@
 \RequirePackage{lmodern} %for bold teletype
 \RequirePackage{amsmath}
 \RequirePackage{accents}
+\RequirePackage{caption}
+\RequirePackage{mathtools}
+
+%TODO Make this an option that we can set
+\RequirePackage[margin=1in]{geometry}
 
 \usetikzlibrary{calc,decorations,arrows}
 
@@ -45,6 +50,7 @@
 
 %not sure if this works or if I need to do something to make it expand here
 %\newcommand\@oldtitle\maketitle
+%\let\@oldtitle\maketitle    %THIS WILL WORK!!!
 %\renewcommand{}
 %TODO this section is not done!!!!
 
@@ -61,12 +67,18 @@ deletekeywords={pi,size,length,zeros,ones,eye,linspace,ode45,figure,xlabel,
     ylabel,title,sprintf,fprintf,legend,plot,cos,sin,strrep,norm,set,exp,
     beta,round,rand,min,max,sum,log,abs,load,open,mean,std,logspace,loglog,
     sqrt,pause,sort,num2str,reshape,error,cd,any,xor,prod,fmin,floor,save,
-    text,tic,toc,interp1,dir,dlmread,fopen,fclose,fwrite},
+    text,tic,toc,interp1,dir,dlmread,fopen,fclose,fwrite,atan2,roots,
+    diag,expm,eig,upper,cumsum,uigetfile,get,ceil,type,flag,delete,
+    isempty,isnan,str2num,exist,all,dot,cross,imag,trace,acos,ans,zlabel,
+    plot3,sign},
 keywords=[2]{pi,size,length,zeros,ones,eye,linspace,ode45,figure,xlabel,
     ylabel,title,sprintf,fprintf,legend,plot,cos,sin,strrep,norm,set,exp,
     round,rand,min,max,sum,log,abs,load,open,mean,std,logspace,loglog,
     sqrt,pause,num2str,sort,reshape,any,xor,prod,fmin,floor,save,
-    text,tic,toc,interp1,dir,dlmread,fopen,fclose,fwrite},
+    text,tic,toc,interp1,dir,dlmread,fopen,fclose,fwrite,atan2,roots,
+    diag,expm,eig,upper,cumsum,uigetfile,get,ceil,type,flag,delete,
+    isempty,isnan,str2num,exist,all,dot,cross,imag,trace,acos,zlabel,
+    plot3,sign},
 showstringspaces=false,
 basicstyle=\smaller\tt,
 tabsize=4,
@@ -102,6 +114,14 @@ columns=flexible
 
 \lstnewenvironment{Python}[1][none]{\lstset{style=python,numbers=#1}}{}
 
+%TODO Add C/C++ listing definition.
+
+%TODO Possibly define one for KAREL/FANUC Specific things as well??
+
+%% Default Style is MATLAB
+\lstset{style=MATLAB,frame=single,numbers=left}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TIKZ Macros  %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Set the inner sep for all nodes to be 0
@@ -111,6 +131,8 @@ columns=flexible
 
 %\tikzset{every node/.style={inner sep=0pt}}
 %every label/.style={inner sep=\innersep}}
+
+\tikzset{forces/.style={-latex,very thick}}
 
 %% Center of Gravity symbol
 %this is temporary until I can find a way to make it a shape
@@ -153,49 +175,341 @@ columns=flexible
 	}
 }
 
+\pgfdeclareshape{dashpot}{
+	\inheritsavedanchors[from=rectangle]
+	\inheritanchorborder[from=rectangle]
+	\inheritanchor[from=rectangle]{center}
+	\inheritanchor[from=rectangle]{north}
+	\inheritanchor[from=rectangle]{south}
+	\inheritanchor[from=rectangle]{east}
+	\inheritanchor[from=rectangle]{west}
+	\inheritanchor[from=rectangle]{north east}
+	\inheritanchor[from=rectangle]{north west}
+	\inheritanchor[from=rectangle]{south east}
+	\inheritanchor[from=rectangle]{south west}
+	
+	%\inheritbackgroundpath[from=circle]
+	\beforebackgroundpath{
+	    \southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		
+		\color{white}
+		\pgfpathrectanglecorners{\southwest}{\northeast}
+		\pgfusepath{fill}
+    }
+	\foregroundpath{
+		%get radius and center point coordinates  (FIGURE OUT HOW THIS WORKS!!!????)
+		\southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		
+		\color{black}
+		\pgfmathparse{(\pgf@xb-\pgf@xa)/2}
+		\pgf@xc=\pgf@xa \advance\pgf@xc by\pgfmathresult pt
+		\pgf@yc=\pgf@ya
+		\pgfpathmoveto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+		\pgfpathlineto{\southwest} 
+		\pgf@yc=\pgf@yb
+		\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@yc}}
+		\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+		
+		\pgfmathparse{(\pgf@xb-\pgf@xa)/3}
+		\pgf@xc=\pgf@xa \advance\pgf@xc by\pgfmathresult pt
+		\pgfmathparse{3*(\pgf@yb-\pgf@ya)/20}
+		\advance\pgf@yc by -\pgfmathresult pt
+		\pgfpathmoveto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+		\pgf@yc=\pgf@ya \advance\pgf@yc by \pgfmathresult pt
+		\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+		\pgfmathparse{(\pgf@yb+\pgf@ya)/2}
+		\pgf@yc=\pgfmathresult pt
+		\pgfpathmoveto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yc}}
+		\pgfusepath{draw}
+	}
+}
+
 %TODO create something for "fixed ground" hash marks
+
+%can use [postaction={decorate,decoration=fixedhash}] to keep the original path as well
 \newcommand{\@hashxpt}{3pt}
 \newcommand{\@hashypt}{5pt}
-\let\@hash@absxpt=\@hashxpt
-\let\@hash@absypt=\@hashypt
-\pgfkeys{/MAE/hash/left/.code=\renewcommand{\@hashypt}{5pt},
-         /MAE/hash/right/.code=\renewcommand{\@hashypt}{-5pt},
-         /MAE/hash/fwd/.code=\renewcommand{\@hashxpt}{3pt},
-         /MAE/hash/bwd/.code=\renewcommand{\@hashxpt}{-3pt}}
-%can use [postaction={decorate,decoration=fixedhash}] to keep the original path as well
+\let\hash@abs@xpt\@hashxpt
+\let\hash@abs@ypt\@hashypt
+\pgfkeys{/MAE/hash/left/.code={\renewcommand{\@hashypt}{5pt}}, %TODO don't hard code the 3pt... 
+         /MAE/hash/right/.code={\renewcommand{\@hashypt}{-5pt}}, 
+         /MAE/hash/fwd/.code={\renewcommand{\@hashxpt}{3pt}}, 
+         /MAE/hash/back/.code={\renewcommand{\@hashxpt}{-3pt}}}
 \pgfdeclaredecoration{fixedhash}{initial}{
 
   %\pgfmathparse{max(\pgfdecoratedpathlength/10,10pt)}  %hope I can do this
   %TODO need to test if variable length makes more sense
   %TODO define options for the direction of the hash
+  \state{initial}[next state=main,width={0pt}]{
+    \pgfpathmoveto{\pgfpoint{0}{0}}
+  }
   
-  \state{initial}[width={\@hash@absxpt},auto corner on length={\@hash@absxpt}]{
+  \state{main}[width={\hash@abs@xpt},auto corner on length={\hash@abs@xpt}]
+  {
     \pgfpathlineto{\pgfpoint{\@hashxpt}{\@hashypt}}
-    \pgfpathmoveto{\pgfpoint{\@hash@absxpt}{0}}
+    \pgfpathmoveto{\pgfpoint{\hash@abs@xpt}{0}}
   }
 
   \state{final}{
-    \pgfpathlineto{\pgfpoint{\@hashxpt}{\@hashypt}} 
+    \pgfpathlineto{\pgfpoint{\@hashxpt}{\@hashypt}}
     \pgfpathmoveto{\pgfpointdecoratedpathlast}
-  }
-     
+    } 
 
 }
-%Define a style for this decoration
-\tikzset{myhash/.style={thick,/pgf/decoration/path has corners=true,postaction={draw,thin,decorate,decoration=fixedhash}}}
-\tikzset{localhash/.style={decoration=fixedhash,/pgf/decoration/path has corners=true,
-                           thin,/MAE/hash/#1},
-         localhash/.default={fwd}}
+%TODO this is a temporary test definition.
+% NOTE: thick = 0.8pt, thin = 0.4pt
+\pgfdeclaredecoration{fixedhash2}{initial}{
+
+  %\pgfmathparse{max(\pgfdecoratedpathlength/10,10pt)}  %hope I can do this
+  %TODO need to test if variable length makes more sense
+  %TODO define options for the direction of the hash
+  \state{initial}[next state=main,width={0pt}]{
+    \pgfpathmoveto{\pgfpoint{0}{0}}
+  }
+  
+  \state{main}[width={\hash@abs@xpt},auto corner on length={\hash@abs@xpt}]
+  {    
+    \pgfsetlinewidth{0.4pt} % thin
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{\@hashxpt}{\@hashypt}}
+    \pgfusepath{stroke}
+    \pgfsetlinewidth{0.8pt} % thick
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{\hash@abs@xpt}{0}}
+    \pgfusepath{stroke}
+  }
+
+  \state{final}{
+    \pgfsetlinewidth{0.4pt} % thin
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{\@hashxpt}{\@hashypt}}
+    \pgfusepath{stroke}
+    \pgfsetlinewidth{0.8pt} % thick
+    \pgfmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpointdecoratedpathlast}
+    \pgfusepath{stroke}
+    } 
+
+}
+%Define a style for this decoration (in the tikz tree)
+\tikzset{myhash/.style={thick,/pgf/decoration/path has corners=true,
+         postaction={draw,thin,decorate,decoration=fixedhash}}}  
+%do these need /pgf/decoration/path has corners=true ?????
+\tikzset{localhash/.style={thin,decoration=fixedhash,/MAE/hash/#1},
+         localhash/.default=fwd}
+\tikzset{localhash2/.style={thin,decoration=fixedhash2,/MAE/hash/#1},
+         localhash2/.default=fwd}
+
+
+% Attempt to add a new tikz-3d-plot definition for rotations relative to the Rotated Coord System
+%\tdplotsetrotatedcoordsrel{\alpha}{\beta}{\gamma}
+%generates the coordinate transformation for the rotated coordinate system within the display coordinate system relative to the current rotated coordinates.  This should be called only after the display and rotated coordinate systems have been defined.  If the display coordinate system changes, this will have to be updated.  
+%#1: user-specified euler angle \alpha.
+%#2: user-specified euler angle \beta.
+%#3: user-specified euler angle \gamma.
+% NOTE: you must have run \tdplotsetrotatedcoords at least once before.
+\newcommand{\tdplotsetrotatedcoordsrel}[3]{%
+%
+% Now set this for the relative
+\pgfmathsetmacro{\tdplotalpharel}{#1}
+\pgfmathsetmacro{\tdplotbetarel}{#2}
+\pgfmathsetmacro{\tdplotgammarel}{#3}
+%
+%%%% TODO need to add a new calculation routine like \tdplotcalctransformrotrot to insert first
+%%%% Probabl need to do something like 
+%%%%%%%  \tdplotcalctransformrotmain
+%%%%%%%  save the matrix to new macros
+%%%%%%%  set the \tdplotalpha (done above)
+%%%%%%%  calclate new rotation to main??? (next line)  -> NOTE: this step may need to be relative to world
+%%%%%%%  multiply the two rotations together
+\tdplotcalctransformrotrel
+
+%
+%now, determine master rotation matrix to define euler-rotated coordinates within the display coordinate frame
+\tdplotmult{\raaeaa}{\raarot}{\raaeul}
+\tdplotmult{\rabeba}{\rabrot}{\rbaeul}
+\tdplotmult{\raceca}{\racrot}{\rcaeul}
+%
+\tdplotmult{\raaeab}{\raarot}{\rabeul}
+\tdplotmult{\rabebb}{\rabrot}{\rbbeul}
+\tdplotmult{\racecb}{\racrot}{\rcbeul}
+%
+\tdplotmult{\raaeac}{\raarot}{\raceul}
+\tdplotmult{\rabebc}{\rabrot}{\rbceul}
+\tdplotmult{\racecc}{\racrot}{\rcceul}
+%
+\tdplotmult{\rbaeaa}{\rbarot}{\raaeul}
+\tdplotmult{\rbbeba}{\rbbrot}{\rbaeul}
+\tdplotmult{\rbceca}{\rbcrot}{\rcaeul}
+%
+\tdplotmult{\rbaeab}{\rbarot}{\rabeul}
+\tdplotmult{\rbbebb}{\rbbrot}{\rbbeul}
+\tdplotmult{\rbcecb}{\rbcrot}{\rcbeul}
+%
+\tdplotmult{\rbaeac}{\rbarot}{\raceul}
+\tdplotmult{\rbbebc}{\rbbrot}{\rbceul}
+\tdplotmult{\rbcecc}{\rbcrot}{\rcceul}
+%
+%the third row is not needed for screen display
+%\tdplotmult{\rcaeaa}{\rcarot}{\raaeul}
+%\tdplotmult{\rcbeba}{\rcbrot}{\rbaeul}
+%\tdplotmult{\rcceca}{\rccrot}{\rcaeul}
+%
+%\tdplotmult{\rcaeab}{\rcarot}{\rabeul}
+%\tdplotmult{\rcbebb}{\rcbrot}{\rbbeul}
+%\tdplotmult{\rccecb}{\rccrot}{\rcbeul}
+%
+%\tdplotmult{\rcaeac}{\rcarot}{\raceul}
+%\tdplotmult{\rcbebc}{\rcbrot}{\rbceul}
+%\tdplotmult{\rccecc}{\rccrot}{\rcceul}
+%
+%set up the master rotation matrix elements
+\pgfmathsetmacro{\raarc}{\raaeaa + \rabeba + \raceca}
+\pgfmathsetmacro{\rabrc}{\raaeab + \rabebb + \racecb}
+\pgfmathsetmacro{\racrc}{\raaeac + \rabebc + \racecc}
+\pgfmathsetmacro{\rbarc}{\rbaeaa + \rbbeba + \rbceca}
+\pgfmathsetmacro{\rbbrc}{\rbaeab + \rbbebb + \rbcecb}
+\pgfmathsetmacro{\rbcrc}{\rbaeac + \rbbebc + \rbcecc}
+%the third row is not needed for screen display
+%\pgfmathsetmacro{\rcarc}{\rcaeaa + \rcbeba + \rcceca}
+%\pgfmathsetmacro{\rcbrc}{\rcaeab + \rcbebb + \rccecb}
+%\pgfmathsetmacro{\rccrc}{\rcaeac + \rcbebc + \rccecc}
+%
+%DEBUG: display master matrix elements
+%\raarc\ \rabrc\ \racrc
+%
+%\rbarc\ \rbbrc\ \rbcrc
+%
+%\rcarc\ \rcbrc\ \rccrc
+%
+\tikzset{tdplot_rotated_coords/.append style={x={(\raarc cm,\rbarc cm)},y={(\rabrc cm, \rbbrc cm)},z={(\racrc cm, \rbcrc cm)}}}%
+}
+
+
+%determines the rotation matrix for transformation from the new rotation coordinate frame to the current rotated coordinate frame.  This also defines the rotation to produce the rotated coordinate frame.
+\newcommand{\tdplotcalctransformrotrel}{%
+%%%% TODO NEED TO IMPLEMENT  rotation 
+%%%% Currently just a copy of \tdplotcalctransformrotmain
+%
+% NEW: compute original rotation first
+%\tdplotcalctransformrotmain
+
+%perform some trig for the Euler transformation
+\tdplotsinandcos{\sinalpha}{\cosalpha}{\tdplotalpharel} 
+\tdplotsinandcos{\sinbeta}{\cosbeta}{\tdplotbetarel}
+\tdplotsinandcos{\singamma}{\cosgamma}{\tdplotgammarel}
+%
+\tdplotmult{\sasb}{\sinalpha}{\sinbeta}
+\tdplotmult{\sbsg}{\sinbeta}{\singamma}
+\tdplotmult{\sasg}{\sinalpha}{\singamma}
+\tdplotmult{\sasbsg}{\sasb}{\singamma}
+%
+\tdplotmult{\sacb}{\sinalpha}{\cosbeta}
+\tdplotmult{\sacg}{\sinalpha}{\cosgamma}
+\tdplotmult{\sbcg}{\sinbeta}{\cosgamma}
+\tdplotmult{\sacbsg}{\sacb}{\singamma}
+\tdplotmult{\sacbcg}{\sacb}{\cosgamma}
+%
+\tdplotmult{\casb}{\cosalpha}{\sinbeta}
+\tdplotmult{\cacb}{\cosalpha}{\cosbeta}
+\tdplotmult{\cacg}{\cosalpha}{\cosgamma}
+\tdplotmult{\casg}{\cosalpha}{\singamma}
+%
+\tdplotmult{\cacbsg}{\cacb}{\singamma}
+\tdplotmult{\cacbcg}{\cacb}{\cosgamma}
+%
+%determine rotation matrix elements for Euler transformation
+\pgfmathsetmacro{\raatmp}{\cacbcg - \sasg}
+\pgfmathsetmacro{\rabtmp}{-\cacbsg - \sacg}
+\pgfmathsetmacro{\ractmp}{\casb}
+\pgfmathsetmacro{\rbatmp}{\sacbcg + \casg}
+\pgfmathsetmacro{\rbbtmp}{-\sacbsg + \cacg}
+\pgfmathsetmacro{\rbctmp}{\sasb}
+\pgfmathsetmacro{\rcatmp}{-\sbcg}
+\pgfmathsetmacro{\rcbtmp}{\sbsg}
+\pgfmathsetmacro{\rcctmp}{\cosbeta}
+%
+%DEBUG: display euler matrix elements
+%\raaeul\ \rabeul\ \raceul
+%
+%\rbaeul\ \rbbeul\ \rbceul
+%
+%\rcaeul\ \rcbeul\ \rcceul
+%
+%NEW: Multiply this with the original 
+\tdplotmult{\raaeaa}{\raaeul}{\raatmp}
+\tdplotmult{\rabeba}{\rabeul}{\rbatmp}
+\tdplotmult{\raceca}{\raceul}{\rcatmp}
+%
+\tdplotmult{\raaeab}{\raaeul}{\rabtmp}
+\tdplotmult{\rabebb}{\rabeul}{\rbbtmp}
+\tdplotmult{\racecb}{\raceul}{\rcbtmp}
+%
+\tdplotmult{\raaeac}{\raaeul}{\ractmp}
+\tdplotmult{\rabebc}{\rabeul}{\rbctmp}
+\tdplotmult{\racecc}{\raceul}{\rcctmp}
+%
+\tdplotmult{\rbaeaa}{\rbaeul}{\raatmp}
+\tdplotmult{\rbbeba}{\rbbeul}{\rbatmp}
+\tdplotmult{\rbceca}{\rbceul}{\rcatmp}
+%
+\tdplotmult{\rbaeab}{\rbaeul}{\rabtmp}
+\tdplotmult{\rbbebb}{\rbbeul}{\rbbtmp}
+\tdplotmult{\rbcecb}{\rbceul}{\rcbtmp}
+%
+\tdplotmult{\rbaeac}{\rbaeul}{\ractmp}
+\tdplotmult{\rbbebc}{\rbbeul}{\rbctmp}
+\tdplotmult{\rbcecc}{\rbceul}{\rcctmp}
+%
+\tdplotmult{\rcaeaa}{\rcaeul}{\raatmp}
+\tdplotmult{\rcbeba}{\rcbeul}{\rbatmp}
+\tdplotmult{\rcceca}{\rcceul}{\rcatmp}
+%
+\tdplotmult{\rcaeab}{\rcaeul}{\rabtmp}
+\tdplotmult{\rcbebb}{\rcbeul}{\rbbtmp}
+\tdplotmult{\rccecb}{\rcceul}{\rcbtmp}
+%
+\tdplotmult{\rcaeac}{\rcaeul}{\ractmp}
+\tdplotmult{\rcbebc}{\rcbeul}{\rbctmp}
+\tdplotmult{\rccecc}{\rcceul}{\rcctmp}
+%
+%set up the master rotation matrix elements
+\pgfmathsetmacro{\raaeul}{\raaeaa + \rabeba + \raceca}
+\pgfmathsetmacro{\rabeul}{\raaeab + \rabebb + \racecb}
+\pgfmathsetmacro{\raceul}{\raaeac + \rabebc + \racecc}
+\pgfmathsetmacro{\rbaeul}{\rbaeaa + \rbbeba + \rbceca}
+\pgfmathsetmacro{\rbbeul}{\rbaeab + \rbbebb + \rbcecb}
+\pgfmathsetmacro{\rbceul}{\rbaeac + \rbbebc + \rbcecc}
+\pgfmathsetmacro{\rcaeul}{\rcaeaa + \rcbeba + \rcceca}
+\pgfmathsetmacro{\rcbeul}{\rcaeab + \rcbebb + \rccecb}
+\pgfmathsetmacro{\rcceul}{\rcaeac + \rcbebc + \rccecc}
+}
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Math Definitions %%%%%%%%%%%%%%%%%%%%%%
 
-%use harpoon as the default vector 
-%\edef\oldvec{\vec}  %keep the old version
-%\DeclareMathAccent{\vec}{\mathord}{letters}{"7E}
+\allowdisplaybreaks[3]  % allows for pagebreaks in math display modes
+
+% Save old version of vector in case want to use
+\let\oldvec\vec
+% use harpoon as the default vector 
 \renewcommand{\vec}[1]{\accentset{\rightharpoonup}{#1}}  
 
 %do a vector dot product with itself
-\newcommand{\vsqr}[1]{#1\cdot #1}
+\newcommand{\vsqr}[1]{\ensuremath #1\cdot #1}
+
+%scientific notation
+\newcommand{\e}[1]{\ensuremath \times 10^{#1}}
+
+% alias for mathcal
+\newcommand{\mc}[1]{\ensuremath \mathcal{#1}}
+
+
 
 
 

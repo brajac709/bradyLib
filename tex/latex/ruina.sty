@@ -31,8 +31,6 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Set a few macros  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\tikzset{forces/.style={-latex,very thick}}
-\lstset{style=MATLAB,frame=single,numbers=left}
 
 %TODO make these mathmode only safe?????
 \newcommand\hatr{\hat{e}_r}
@@ -46,5 +44,18 @@
 \newcommand{\lagrange}{\mathcal{L}}
 %the derivative of the lagrangian with respect to a given variable
 \newcommand{\dLag}[1]{\frac{\partial \lagrange}{\partial #1}}
+
+% Special definition for skew symmetric tensor
+\newcommand{\Smat}{\boldsymbol{\mathcal{S}}}
+% Bolded vector
+\newcommand{\bvec}[1]{\vec{\boldsymbol{#1}}}
+% Tensor (double underline)
+\newcommand{\tensor}[1]{\underline{\underline{#1}}}
+% Bold Tensor (double underline)
+\newcommand{\btensor}[1]{\tensor{\boldsymbol{#1}}}
+% Bolded hat
+\newcommand{\bhat}[1]{\hat{\boldsymbol{#1}}}
+% Bold Matrix (only bold)
+\newcommand{\bmat}[1]{\boldsymbol{#1}}
 
 \endinput
