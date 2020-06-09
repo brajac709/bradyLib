@@ -1,2 +1,5 @@
 *.log
-test/*
+*.aux
+*.synctex.gz
+*.pdf
+#test/*

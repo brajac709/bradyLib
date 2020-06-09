@@ -1,0 +1,34 @@
+\documentclass[12pt]{article}
+\usepackage{MAE}
+
+\begin{document}
+  \tdplotsetmaincoords{70}{150}
+  \begin{tikzpicture}[tdplot_main_coords, scale=2]
+    \coordinate (O) at (0,0,0);
+    
+    \tdplotsetrotatedcoords{0}{0}{90}
+    \begin{scope}[tdplot_rotated_coords]
+      \draw [forces] (O) -- ++ (1,0,0) node [anchor=west] {$x_0$};
+      \draw [forces] (O) -- ++ (0,1,0) node [anchor=west] {$y_0$};
+      \draw [forces] (O) -- ++ (0,0,1) node [anchor=west] {$z_0$};      
+      
+      \coordinate (F1) at (2,0,0);
+      
+      \tdplotsetrotatedcoordsrel{90}{90}{0}
+      \begin{scope}[tdplot_rotated_coords]
+        \draw [forces] (F1) -- ++ (1,0,0) node [anchor=west] {$x_1$};
+%        \draw [forces] (F1) -- ++ (0,1,0) node [anchor=west] {$y_1$};
+        \draw [forces] (F1) -- ++ (0,0,1) node [anchor=west] {$z_1$};
+        
+        \draw (F1) ++ (2,0,0) coordinate (F2);
+        
+        \tdplotsetrotatedcoordsrel{90}{0}{0}
+        \begin{scope}[tdplot_rotated_coords]
+		  \draw [forces] (F2) -- ++ (1,0,0) node [anchor=west] {$x_2$};                   
+        \end{scope}        
+        \draw [forces] (F1) ++ (0,-2,0) -- ++ (0,1,0) node [anchor=east]{$y'_1$};
+      \end{scope}
+    \end{scope}
+
+  \end{tikzpicture}
+\end{document}
